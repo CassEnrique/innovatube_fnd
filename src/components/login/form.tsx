@@ -1,10 +1,24 @@
 "use client";
 
 import React from "react";
-import { Button, Checkbox, Form, Input, ConfigProvider, theme } from "antd";
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  ConfigProvider,
+  theme,
+  Tag,
+  Spin,
+  message,
+} from "antd";
 import type { FormProps } from "antd";
 import { useCookies } from "react-cookie";
 import { Span } from "next/dist/trace";
+import Link from "next/link";
+import { login } from "@/app/login/service";
+import { useRouter } from "next/navigation";
+import { setCookies } from "@/utils/coockies";
 
 type FieldType = {
   email: string;
@@ -13,11 +27,37 @@ type FieldType = {
 };
 
 const FormComponent: () => JSX.Element = () => {
-  const [form] = Form.useForm();
-  const [cookies, setCookie] = useCookies(["userLogin"]);
+  const router = useRouter();
+  const [formLogin] = Form.useForm();
+  const [spinning, setSpinning] = React.useState(false);
+  const [cookies, setCookie] = useCookies<any>(["userLogin"]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
+    setSpinning(true);
+    const payload = {
+      ...values,
+      user: values.username ?? values.email,
+    };
+
+    const resL: Promise<any> = login(payload);
+
+    resL.then((response) => {
+      if (response.code === 200) {
+        message.success(response.message);
+        setCookie("userLogin", JSON.stringify(response.obj));
+        //setCookie("jwtAuth", JSON.stringify(response.token));
+        setCookies("jwtAuth", response.token);
+
+        setInterval(() => {
+          router.push("/innovatube/home", { scroll: false });
+        }, 3000);
+      }
+
+      if (response.code !== 200) {
+        message.info(response.message);
+        setSpinning(false);
+      }
+    });
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
@@ -52,7 +92,7 @@ const FormComponent: () => JSX.Element = () => {
           }}
         >
           <Form
-            form={form}
+            form={formLogin}
             name={"basic"}
             initialValues={{}}
             onFinish={onFinish}
@@ -69,14 +109,21 @@ const FormComponent: () => JSX.Element = () => {
                   type: "email",
                   message: "No es un correo valido!",
                 },
-                {
-                  required: true,
-                  message: "Ingrese su correo porfavor!",
-                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (value || getFieldValue("username")) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Ingrese su correo porfavor!"),
+                    );
+                  },
+                }),
               ]}
             >
               <Input
-                rootClassName={"!bg-white/[0.4] shadow-md shadow-black mb-2"}
+                rootClassName={"!bg-white/[0.4] shadow-md shadow-black"}
+                allowClear
               />
             </Form.Item>
 
@@ -86,11 +133,21 @@ const FormComponent: () => JSX.Element = () => {
               label={"Username"}
               name={"username"}
               rules={[
-                { required: true, message: "Ingrese su nombre porfavor!" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (value || getFieldValue("email")) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Ingrese su usuario porfavor!"),
+                    );
+                  },
+                }),
               ]}
             >
               <Input
-                rootClassName={"!bg-white/[0.4] shadow-md shadow-black mb-2"}
+                rootClassName={"!bg-white/[0.4] shadow-md shadow-black"}
+                allowClear
               />
             </Form.Item>
 
@@ -104,8 +161,21 @@ const FormComponent: () => JSX.Element = () => {
               ]}
             >
               <Input.Password
-                rootClassName={"!bg-white/[0.4] shadow-md shadow-black mb-2"}
+                rootClassName={"!bg-white/[0.4] shadow-md shadow-black"}
+                allowClear
               />
+            </Form.Item>
+
+            <Form.Item className={"flex justify-center"}>
+              <Link href="/signin">
+                <span className={"text-white font-bold"}>
+                  Si aún no estas con nosotros, &nbsp;
+                </span>
+                <Tag color="blue" className={"font-bold"}>
+                  Registrate
+                </Tag>
+                <span className={"text-white font-bold"}>.!!</span>
+              </Link>
             </Form.Item>
 
             <Form.Item className={"flex justify-center"}>
@@ -120,6 +190,8 @@ const FormComponent: () => JSX.Element = () => {
           </Form>
         </ConfigProvider>
       </div>
+
+      <Spin spinning={spinning} fullscreen />
     </>
   );
 };

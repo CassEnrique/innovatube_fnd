@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function middleware(request: any) {
-  const jwt = request.cookies.get("authToken");
+  const jwt = request.cookies.get("jwtAuth");
   const jwtSecret = process.env.JWT_SECRET_KEY;
   const jwtApp = process.env.APP;
 
@@ -11,7 +11,7 @@ export async function middleware(request: any) {
   try {
     const { payload } = await jwtVerify(
       jwt.value,
-      new TextEncoder().encode(`${jwtSecret}-${jwtApp}`)
+      new TextEncoder().encode(`${jwtSecret}-${jwtApp}`),
     );
     return NextResponse.next();
   } catch (error) {
@@ -20,7 +20,5 @@ export async function middleware(request: any) {
 }
 
 export const config = {
-  matcher: [
-    "/innovatube/favorites/:path*",
-  ],
+  matcher: ["/innovatube/favorites/:path*"],
 };

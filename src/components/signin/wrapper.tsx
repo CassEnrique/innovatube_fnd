@@ -13,8 +13,6 @@ const reCaptchaKey: string | undefined = process.env.RECAPTCHA_KEY;
 const WrapperComponent: () => JSX.Element = () => {
   const [cookies, setCookie] = useCookies(["videoSearch"]);
 
-  const handleVerify = () => {};
-
   React.useEffect(() => {}, [cookies]);
 
   return (
@@ -27,7 +25,6 @@ const WrapperComponent: () => JSX.Element = () => {
         >
           <FormComponent />
         </div>
-        <GoogleReCaptcha onVerify={handleVerify} />
       </GoogleReCaptchaProvider>
       ,
     </>

@@ -10,10 +10,15 @@ import {
   theme,
   Row,
   Col,
+  message,
+  Spin,
 } from "antd";
 import type { FormProps } from "antd";
 import { useCookies } from "react-cookie";
 import { Span } from "next/dist/trace";
+import { GoogleReCaptcha } from "react-google-recaptcha-v3";
+import { create_user } from "@/app/signin/service";
+import { useRouter } from "next/navigation";
 
 type FieldType = {
   email: string;
@@ -25,17 +30,47 @@ type FieldType = {
 };
 
 const FormComponent: () => JSX.Element = () => {
+  const router = useRouter();
   const [form] = Form.useForm();
+  const [token, setToken] = React.useState();
+  const [spinning, setSpinning] = React.useState(false);
+  const [refreshReCaptcha, setRefreshReCaptcha] = React.useState(false);
   const [cookies, setCookie] = useCookies(["userLogin"]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
+    setSpinning(true);
+    const payload = {
+      ...values,
+      toke: token,
+    };
+
+    const resCU: Promise<any> = create_user(payload);
+
+    resCU.then((response) => {
+      if (response.code === 200) {
+        message.success(response.message);
+        setCookie("userLogin", JSON.stringify(response.obj));
+
+        setInterval(() => {
+          router.push("/innovatube/home", { scroll: false });
+        }, 3000);
+      }
+
+      if (response.code !== 200) {
+        message.info(response.message);
+        setSpinning(false);
+      }
+    });
   };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
     errorInfo,
   ) => {
     console.log("Failed:", errorInfo);
+  };
+
+  const handleVerify = (token: any) => {
+    setToken(token);
   };
 
   React.useEffect(() => {}, [cookies]);
@@ -90,7 +125,7 @@ const FormComponent: () => JSX.Element = () => {
                     rootClassName={
                       "!bg-white/[0.4] shadow-md shadow-black mb-2"
                     }
-                    maxLength={100}
+                    maxLength={50}
                   />
                 </Form.Item>
               </Col>
@@ -165,7 +200,7 @@ const FormComponent: () => JSX.Element = () => {
                     rootClassName={
                       "!bg-white/[0.4] shadow-md shadow-black mb-2"
                     }
-                    maxLength={100}
+                    maxLength={50}
                   />
                 </Form.Item>
               </Col>
@@ -239,6 +274,9 @@ const FormComponent: () => JSX.Element = () => {
           </Form>
         </ConfigProvider>
       </div>
+
+      <Spin spinning={spinning} fullscreen />
+      <GoogleReCaptcha onVerify={handleVerify} />
     </>
   );
 };
