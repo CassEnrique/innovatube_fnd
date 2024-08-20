@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# InnovaTube - Web
 
-## Getting Started
+Esta es una aplicación desarrollada en [JavaScript](https://developer.mozilla.org/es/docs/Web/JavaScript) y
+[TypeScript](https://www.typescriptlang.org/) con [NextJS](https://nextjs.org/) basado en el frameworks
+[React](https://es.react.dev/) con el modelo de plantillas [AntDesign](https://ant.design/).
 
-First, run the development server:
+## Requisitos
+
+[NodeJS](https://nodejs.org/en)
+
+## Clonar
+
+Para comenzar, haz un clon del repositorio [InnovaTube-Fnd](https://github.com/CassEnrique/innovatube_fnd) en su
+rama main:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone -b main git@github.com:CassEnrique/innovatube_fnd.git innovatube_fnd
+cd innovatube_fnd
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Colaborar
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Si vas a desarrollar, y aún no existe una rma `Dev`, contribuye creando esta con los siguientes comandos y colabora
+para dar más valor al proyecto:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+```bash
+git clone -b main git@github.com:CassEnrique/innovatube_fnd.git innovatube_fnd
+git checkout -b development
+# develop
+git add .
+git pull
+git push origin development
+```
 
-## Learn More
+## Ejecución
 
-To learn more about Next.js, take a look at the following resources:
+Descarga las dependencias:
+```bash
+npm i
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Ejecuta la aplicación
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+La aplicación esta corriendo por defecto en el puerto `9119`
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
